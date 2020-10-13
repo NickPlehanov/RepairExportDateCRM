@@ -1,4 +1,6 @@
-﻿using System;
+﻿using RepairExportDateCRM.Data;
+using RepairExportDateCRM.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -9,18 +11,10 @@ namespace RepairExportDateCRM {
 		
 		static void Main(string[] args) {
 			List<ObjectExportDate> objectExportDates = new List<ObjectExportDate>();
-			string path = @"\\Server-nas\общее\Applications\ExportFromCrmTo1C\History";
+			string path = @"\\Server-nas\общее\Applications\ExportFromCrmTo1C\History\test";
 			string[] files = System.IO.Directory.GetFiles(path);
 			if(files.Length > 0) {
 				foreach(string item in files) {
-					//var xml = XDocument.Load(item);
-					//var query = from c in xml.Root.Descendants(@"Контрагенты")
-					//			//where (int)c.Attribute("id") < 4
-					//			select c.Element("НомерОбъекта").Value;
-					//foreach(var it in query) {
-					//	Console.WriteLine(it);
-					//	Console.ReadKey();
-					//}
 					XmlDocument doc = new XmlDocument();
 					doc.Load(item);
 					XmlNode node = doc.DocumentElement.SelectSingleNode("/Контрагенты/Контрагент/Объекты/Объект");
@@ -36,7 +30,20 @@ namespace RepairExportDateCRM {
 				}
 			}
 			if(objectExportDates != null) {
-
+				using (Vityaz_MSCRMContext context = new Vityaz_MSCRMContext()) {
+					foreach (ObjectExportDate item in objectExportDates) {
+						var obj = context.NewGuardObjectExtensionBase.FirstOrDefault(x => x.NewObjectNumber == item.NumberObject
+						&& x.NewPriostDate == null && x.NewObjDeleteDate == null);
+						if(obj!=null) {
+							DateTime? exportDate = obj.NewLastExportDate.HasValue ? DateTime.TryParse(obj.NewLastExportDate.Value.ToString(), out _) ? DateTime.Parse(obj.NewLastExportDate.Value.ToString()) : DateTime.MinValue : DateTime.MinValue;
+							Guid id = obj.NewGuardObjectId;
+							if(item.ExportDate > exportDate) {
+								obj.NewLastExportDate = item.ExportDate;
+								context.SaveChanges();
+							}
+						}
+					}
+				}
 			}
 		}
 	}
