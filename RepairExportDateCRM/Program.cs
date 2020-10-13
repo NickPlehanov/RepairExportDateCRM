@@ -35,6 +35,9 @@ namespace RepairExportDateCRM {
 					}
 				}
 			}
+			if(objectExportDates != null) {
+
+			}
 		}
 	}
 }
