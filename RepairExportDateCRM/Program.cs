@@ -17,9 +17,9 @@ namespace RepairExportDateCRM {
 				foreach(string item in files) {
 					XmlDocument doc = new XmlDocument();
 					doc.Load(item);
-					XmlNode node = doc.DocumentElement.SelectSingleNode("/Контрагенты/Контрагент/Объекты/Объект");
-					if(node != null) {
-						string attr = node.ChildNodes[2].InnerText;
+					XmlNodeList nodes = doc.DocumentElement.SelectNodes("/Контрагенты/Контрагент/Объекты/Объект");
+					foreach(XmlNode _item in nodes) {
+						string attr = _item.ChildNodes[2].InnerText;
 						if(!string.IsNullOrEmpty(attr))
 							objectExportDates.Add(new ObjectExportDate() {
 								ExportDate = DateTime.Parse(item.Substring(item.LastIndexOf(@"\"), 11).Replace(@"\", " ").Trim()),
@@ -27,6 +27,15 @@ namespace RepairExportDateCRM {
 							});
 						Console.WriteLine("{0} - {1}", DateTime.Parse(item.Substring(item.LastIndexOf(@"\"), 11).Replace(@"\", " ").Trim()).ToShortDateString(), attr);
 					}
+					//if(node != null) {
+					//	string attr = node.ChildNodes[2].InnerText;
+					//	if(!string.IsNullOrEmpty(attr))
+					//		objectExportDates.Add(new ObjectExportDate() {
+					//			ExportDate = DateTime.Parse(item.Substring(item.LastIndexOf(@"\"), 11).Replace(@"\", " ").Trim()),
+					//			NumberObject = int.Parse(attr)
+					//		});
+					//	Console.WriteLine("{0} - {1}", DateTime.Parse(item.Substring(item.LastIndexOf(@"\"), 11).Replace(@"\", " ").Trim()).ToShortDateString(), attr);
+					//}					
 				}
 			}
 			if(objectExportDates != null) {
