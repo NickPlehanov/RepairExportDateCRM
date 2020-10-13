@@ -2,7 +2,9 @@
 using RepairExportDateCRM.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -49,7 +51,13 @@ namespace RepairExportDateCRM {
 							if(item.ExportDate > exportDate) {
 								obj.NewLastExportDate = item.ExportDate;
 								context.SaveChanges();
+								using(StreamWriter writer = new StreamWriter(@"\\Server-nas\общее\Applications\ExportFromCrmTo1C\History\test\log.txt", true, Encoding.UTF8)) {
+									writer.WriteLine("Обновлена дата выгрузки у объекта {0} на {1}", obj.NewObjectNumber.ToString(), obj.NewLastExportDate.ToString());
+									Console.WriteLine("Обновлена дата выгрузки у объекта {0} на {1}", obj.NewObjectNumber.ToString(), obj.NewLastExportDate.ToString());
+								}
 							}
+							else
+								Console.WriteLine("Обновленние даты выгрузки у объекта {0} на {1} не требуется", obj.NewObjectNumber.ToString(), obj.NewLastExportDate.ToString());
 						}
 					}
 				}
